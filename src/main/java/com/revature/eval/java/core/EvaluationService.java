@@ -38,10 +38,8 @@ public class EvaluationService {
 		String[] words = phrase.split("[^a-zA-Z]+");
 		char[] letters = new char[words.length];
 		
-		for (int i = 0; i < letters.length; i++) {
-			letters[i] = words[i].charAt(0);
-			letters[i] = Character.toUpperCase(letters[i]);
-		}
+		for (int i = 0; i < letters.length; i++)
+			letters[i] = Character.toUpperCase(words[i].charAt(0));
 		
 		return new String(letters);
 	}
@@ -134,41 +132,19 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int getScrabbleScore(String string) {
-		char[] stringLetters = string.toUpperCase().toCharArray();
+		String[] pointSets = {"aeioulnrst", "dg", "bcmp", "fhvwy", "k", "jx", "qz"};
 		int score = 0;
 		
-		for (int i = 0; i < stringLetters.length; i++)
-			switch (stringLetters[i]) {
-			
-			case 'A': case 'E': case 'I': case 'O': case 'U':
-			case 'L': case 'N': case 'R': case 'S': case 'T':
-				score += 1;
-				break;
-				
-			case 'D': case 'G':
-				score += 2;
-				break;
-				
-			case 'B': case 'C': case 'M': case 'P':
-				score += 3;
-				break;
-				
-			case 'F': case 'H': case 'V': case 'W': case 'Y':
-				score += 4;
-				break;
-				
-			case 'K':
-				score += 5;
-				break;
-				
-			case 'J': case 'X':
-				score += 8;
-				break;
-				
-			case 'Q': case 'Z':
-				score += 10;
-				break;
-				
+		for (int i = 0; i < string.length(); i++)
+			for (int j = 0; j < pointSets.length; j++) {
+				if (pointSets[j].indexOf(Character.toLowerCase(string.charAt(i))) >= 0) {
+					if (j == pointSets.length - 1)
+						score += 10;
+					else if (j == pointSets.length - 2)
+						score += 8;
+					else
+						score += j + 1;
+				}
 			}
 		
 		return score;
@@ -206,12 +182,11 @@ public class EvaluationService {
 	 * NANP-countries, only 1 is considered a valid country code.
 	 */
 	public String cleanPhoneNumber(String string) {
-		String allowedChars = "0123456789 -.()";
-		for (int i = 0; i < string.length(); i++)
-			if (allowedChars.indexOf(string.charAt(i)) == -1)
-				throw new IllegalArgumentException("Unpermitted character found!");
+		String formatted = string.replaceAll("[\\s-.()]+", "");
 		
-		String formatted = String.join("", string.split("[\\D]"));
+		for (int i = 0; i < formatted.length(); i++)
+			if (!Character.isDigit(formatted.charAt(i)))
+				throw new IllegalArgumentException("Unpermitted character found!");
 		
 		if (formatted.length() > 11)
 			throw new IllegalArgumentException("A phone number cannot have more than 11 digits!");
@@ -236,7 +211,7 @@ public class EvaluationService {
 		
 		for (int i = 0; i < words.length; i++) {
 			if (seenWords.containsKey(words[i]))
-				seenWords.put(words[i], seenWords.get(words[i])+1);
+				seenWords.put(words[i], seenWords.get(words[i]) + 1);
 			else
 				seenWords.put(words[i], 1);
 		}
@@ -287,7 +262,7 @@ public class EvaluationService {
 			int max = this.sortedList.size() - 1;
 			
 			while (min != max) {
-				int currMidIndex = min + (max-min)/2;
+				int currMidIndex = min + (max-min) / 2;
 				T currMidElement = sortedList.get(currMidIndex);
 				
 				if (t.compareTo(currMidElement) == 0) {
@@ -295,9 +270,9 @@ public class EvaluationService {
 					max = currMidIndex;
 				}
 				else if (t.compareTo(currMidElement) < 0)
-					max = currMidIndex-1;
+					max = currMidIndex - 1;
 				else
-					min = currMidIndex+1;
+					min = currMidIndex + 1;
 			}
 			
 			return min;
@@ -406,7 +381,7 @@ public class EvaluationService {
 					currRemainder = 0L;
 					break;
 				}
-				else if (currRemainder%i == 0) {
+				else if (currRemainder % i == 0) {
 					factors.add(i);
 					currRemainder /= i;
 					break;
@@ -508,7 +483,7 @@ public class EvaluationService {
 			currNum += 2;
 		}
 		
-		return primes.get(i-1);
+		return primes.get(i - 1);
 	}
 
 	/**
@@ -544,22 +519,22 @@ public class EvaluationService {
 		 * @return
 		 */
 		public static String encode(String string) {
-			String formatted = String.join("", string.toLowerCase().split("[\\p{Punct}\\s]"));
-			String[] groups = new String[(formatted.length()/5)+1];
+			String formatted = string.replaceAll("[\\p{Punct}\\s]+", "").toLowerCase();
+			String[] groups = new String[(formatted.length() / 5) + 1];
 			
 			for (int i = 0; i < groups.length; i++) {
 				char[] letters;
 				
-				if (i == groups.length-1)
-					letters = new char[formatted.length()%5];
+				if (i == groups.length - 1)
+					letters = new char[formatted.length() % 5];
 				else
 					letters = new char[5];
 				
 				for (int j = 0; j < letters.length; j++) {
-					if (Character.isLetter(formatted.charAt((i*5)+j)))
-						letters[j] = (char)('z'-(formatted.charAt((i*5)+j)-'a'));
+					if (Character.isLetter(formatted.charAt((i * 5) + j)))
+						letters[j] = (char)('z' - (formatted.charAt((i * 5) + j) - 'a'));
 					else
-						letters[j] = formatted.charAt((i*5)+j);
+						letters[j] = formatted.charAt((i * 5) + j);
 				}
 				
 				groups[i] = new String(letters);
@@ -580,7 +555,7 @@ public class EvaluationService {
 			
 			for (int i = 0; i < formatted.length(); i++) {
 				if (Character.isLetter(formatted.charAt(i)))
-					letters[i] = (char)('z'-(formatted.charAt(i)-'a'));
+					letters[i] = (char)('z' - (formatted.charAt(i) - 'a'));
 				else
 					letters[i] = formatted.charAt(i);
 			}
@@ -612,28 +587,27 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isValidIsbn(String string) {
-		String formatted = String.join("", string.toLowerCase().split("[\\p{Punct}\\s]"));
+		String formatted = string.replaceAll("[\\p{Punct}\\s]+", "");
 		
-		if (!(Character.isDigit(formatted.charAt(9)) ||
-			formatted.charAt(9) == 'x'))
+		if (!Character.isDigit(formatted.charAt(9)) && Character.toLowerCase(formatted.charAt(9)) != 'x')
 			return false;
 		for (int i = 0; i < 9; i++)
 			if (!Character.isDigit(formatted.charAt(i)))
 				return false;
 		
-		int checkVal = (Character.getNumericValue(formatted.charAt(0)) * 10
-				+ Character.getNumericValue(formatted.charAt(1)) * 9
-				+ Character.getNumericValue(formatted.charAt(2)) * 8
-				+ Character.getNumericValue(formatted.charAt(3)) * 7
-				+ Character.getNumericValue(formatted.charAt(4)) * 6
-				+ Character.getNumericValue(formatted.charAt(5)) * 5
-				+ Character.getNumericValue(formatted.charAt(6)) * 4
-				+ Character.getNumericValue(formatted.charAt(7)) * 3
-				+ Character.getNumericValue(formatted.charAt(8)) * 2
-				+ (formatted.charAt(9) == 'x' ? 10 :
-					Character.getNumericValue(formatted.charAt(9))) * 1) % 11;
+		int checkVal = 0;
+		for (int i = 0; i < formatted.length(); i++) {
+			if (i == formatted.length() - 1) {
+				if (Character.toLowerCase(formatted.charAt(9)) == 'x')
+					checkVal += 10;
+				else
+					checkVal += Character.getNumericValue(formatted.charAt(9));
+			}
+			else
+				checkVal += Character.getNumericValue(formatted.charAt(i)) * (10 - i);
+		}
 		
-		return checkVal == 0;
+		return checkVal % 11 == 0;
 	}
 
 	/**
@@ -652,11 +626,9 @@ public class EvaluationService {
 	public boolean isPangram(String string) {
 		boolean[] seenLetters = new boolean[26];
 		
-		for (int i = 0; i < string.length(); i++) {
-			int numVal = Character.getNumericValue(string.charAt(i)) - 10;
-			if (numVal > -1 && numVal < 26)
-				seenLetters[numVal] = true;
-		}
+		for (int i = 0; i < string.length(); i++)
+			if (Character.isAlphabetic(string.charAt(i)))
+				seenLetters[Character.toLowerCase(string.charAt(i)) - 'a'] = true;
 		
 		for (int i = 0; i < 26; i++)
 			if (!seenLetters[i])
@@ -712,7 +684,7 @@ public class EvaluationService {
 		
 		for (int j = 1; j < i; j++)
 			for (int k = 0; k < set.length; k++)
-				if (j%set[k] == 0) {
+				if (j % set[k] == 0) {
 					multiples.add(j);
 					break;
 				}
@@ -767,7 +739,7 @@ public class EvaluationService {
 		for (int i = 0; i < nums.length; i++) {
 			if (Character.isDigit(formatted.charAt(i))) {
 				nums[i] = Character.getNumericValue(formatted.charAt(i));
-				if (i%2 == 1) {
+				if (i % 2 == 1) {
 					nums[i] *= 2;
 					
 					if (nums[i] > 9)
@@ -813,28 +785,20 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int solveWordProblem(String string) {
-		String[] words = string.split(" ");
+		String[] words = string.split("[^\\d-]+");
 		int num1, num2;
 		
-		num1 = Integer.parseInt(words[2]);
-		num2 = Integer.parseInt(words[words.length-1]
-				.substring(0, words[words.length-1].length()-1));
+		num1 = Integer.parseInt(words[1]);
+		num2 = Integer.parseInt(words[2]);
 		
-		switch (words[3]) {
-		
-		case "plus":
+		if (string.contains("plus"))
 			return num1 + num2;
-			
-		case "minus":
+		if (string.contains("minus"))
 			return num1 - num2;
-			
-		case "multiplied":
+		if (string.contains("multiplied"))
 			return num1 * num2;
-			
-		case "divided":
+		if (string.contains("divided"))
 			return num1 / num2;
-			
-		}
 		
 		return 0;
 	}
